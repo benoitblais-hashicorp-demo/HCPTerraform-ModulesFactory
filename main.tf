@@ -28,7 +28,7 @@ module "modules_factory_team_hcp" {
   name         = lower("${tfe_project.this.name}-hcp")
   organization = var.organization
   organization_access = {
-    manage_modules    = true
+    manage_modules = true
   }
   token = true
 }
