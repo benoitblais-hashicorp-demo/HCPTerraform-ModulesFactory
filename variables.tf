@@ -16,7 +16,7 @@ variable "project_name" {
   description = "(Optional) Name of the project."
   type        = string
   nullable    = true
-  default     = "TerraformModulesFactory"
+  default     = "Terraform Modules Factory"
 }
 
 variable "project_tags" {
