@@ -59,7 +59,7 @@ Description: (Optional) Name of the project.
 
 Type: `string`
 
-Default: `"TerraformModulesFactory"`
+Default: `"Terraform Modules Factory"`
 
 ### <a name="input_project_tags"></a> [project\_tags](#input\_project\_tags)
 
