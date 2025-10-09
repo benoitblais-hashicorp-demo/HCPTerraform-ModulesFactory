@@ -48,7 +48,7 @@ resource "tfe_variable" "tfe_token" {
 
 module "modules_factory_repository" {
   source      = "./modules/git_repository"
-  count       = length(tfe_project.this) && var.module_name != null > 0 ? 1 : 0
+  count       = length(tfe_project.this) > 0 && var.module_name != null ? 1 : 0
   name        = var.module_name
   description = module.modules_factory_workspace[0].workspace.description
   topics      = ["factory", "terraform-module", "terraform", "terraform-managed"]
@@ -70,8 +70,8 @@ resource "tfe_registry_module" "this" {
     tests_enabled = true
   }
   vcs_repo {
-    display_identifier = each.value.full_name
-    identifier         = each.value.full_name
+    display_identifier = module.modules_factory_repository[0].full_name
+    identifier         = module.modules_factory_repository[0].full_name
     oauth_token_id     = data.tfe_oauth_client.client.oauth_token_id
     branch             = "main"
   }
