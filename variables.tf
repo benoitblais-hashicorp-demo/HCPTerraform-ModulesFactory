@@ -91,3 +91,10 @@ variable "github_teams" {
       permission  = "push"
   }]
 }
+
+variable "github_template" {
+  description = "(Optional) The GitHub repository to use as a template when creating new repositories. The repository must be a template repository. If not provided, the default template provided by the module will be used."
+  type        = string
+  nullable    = true
+  default     = null
+}

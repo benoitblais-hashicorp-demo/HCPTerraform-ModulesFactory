@@ -121,6 +121,16 @@ resource "tfe_variable" "github_teams" {
   variable_set_id = tfe_variable_set.this[0].id
 }
 
+resource "tfe_variable" "template" {
+  count           = length(tfe_variable_set.this) > 0 && var.github_template != null ? 1 : 0
+  key             = "template"
+  value           = "{\n  owner = \"${var.github_organization}\",\n  repository = \"${var.github_template}\"\n}"
+  category        = "terraform"
+  description     = "(Optional) The template block supports the following:\nowner: (Required) The GitHub organization or user the template repository is owned by.\nrepository: (Required) The name of the template repository."
+  hcl             = true
+  variable_set_id = tfe_variable_set.this[0].id
+}
+
 # The following module block is used to create and manage the GitHub repository that will contain the Terraform module used by the facotry.
 
 module "modules_factory_repository" {
