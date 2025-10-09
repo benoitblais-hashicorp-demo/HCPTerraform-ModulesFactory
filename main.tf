@@ -113,7 +113,7 @@ locals {
 
 resource "tfe_variable" "github_teams" {
   count           = length(tfe_variable_set.this) > 0 ? 1 : 0
-  key             = "organization"
+  key             = "github_teams"
   value           = local.github_teams_string
   category        = "terraform"
   description     = "(Optional) The github_teams block supports the following:\nname: (Required) The name of the team.\npermission: (Optional) The permissions of team members regarding the repository. Must be one of `pull`, `triage`, `push`, `maintain`, `admin` or the name of an existing custom repository role within the organisation."
