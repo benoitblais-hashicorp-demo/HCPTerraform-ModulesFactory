@@ -33,6 +33,17 @@ module "modules_factory_team_hcp" {
   token = true
 }
 
+module "modules_factory_team_git" {
+  source       = "./modules/tfe_team"
+  count        = length(tfe_project.this) > 0 ? 1 : 0
+  name         = lower(replace("${tfe_project.this[0].name}-git", "/\\W|_|\\s/", "-"))
+  organization = var.organization
+  organization_access = {
+    manage_modules = true
+  }
+  token = true
+}
+
 # The following resource blocks are used to create variables that will be stored into the variable set previously created.
 
 resource "tfe_variable" "tfe_token" {
@@ -131,6 +142,15 @@ resource "tfe_variable" "template" {
   variable_set_id = tfe_variable_set.this[0].id
 }
 
+resource "tfe_variable" "git_tfe_token" {
+  count           = length(tfe_variable_set.this) > 0 ? 1 : 0
+  key             = "tfe_token"
+  value           = var.organization
+  category        = "terraform"
+  description     = "(Optional) The TFE_TOKEN secret value to be created in the GitHub repository to allow the module to publish itself into the private registry."
+  variable_set_id = tfe_variable_set.this[0].id
+}
+
 # The following module block is used to create and manage the GitHub repository that will contain the Terraform module used by the facotry.
 
 module "modules_factory_repository" {
@@ -141,6 +161,14 @@ module "modules_factory_repository" {
   topics      = ["factory", "terraform-module", "terraform", "terraform-managed"]
 }
 
+# The following resource block is used to create and manage an action secret at the repository level.
+
+resource "github_actions_secret" "tfe_token" {
+  count           = length(module.modules_factory_team_git) > 0 ? 1 : 0
+  repository      =  module.modules_factory_repository[0].repository.name
+  secret_name     = "TFE_TOKEN"
+  plaintext_value = module.modules_factory_team_git[0].token
+}
 
 # The following module block is used to create and manage a GitHub team for the `modules factory`.
 
