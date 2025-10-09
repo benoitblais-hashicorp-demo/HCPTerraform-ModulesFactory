@@ -17,9 +17,9 @@ The following requirements are needed by this module:
 
 The following Modules are called:
 
-### <a name="module_modules_factory_team_git"></a> [modules\_factory\_team\_git](#module\_modules\_factory\_team\_git)
+### <a name="module_modules_factory_repository"></a> [modules\_factory\_repository](#module\_modules\_factory\_repository)
 
-Source: ./modules/tfe_team
+Source: ./modules/git_repository
 
 Version:
 
@@ -31,11 +31,51 @@ Version:
 
 ## Required Inputs
 
-No required inputs.
+The following input variables are required:
+
+### <a name="input_app_id"></a> [app\_id](#input\_app\_id)
+
+Description: (Required) ID of the GitHub App used to authenticate.
+
+Type: `string`
+
+### <a name="input_app_installation_id"></a> [app\_installation\_id](#input\_app\_installation\_id)
+
+Description: (Required) ID of the GitHub App installation used to authenticate.
+
+Type: `string`
+
+### <a name="input_app_pem_file"></a> [app\_pem\_file](#input\_app\_pem\_file)
+
+Description: (Required) Content of the GitHub App private key PEM file used to authenticate.
+
+Type: `string`
+
+### <a name="input_github_organization"></a> [github\_organization](#input\_github\_organization)
+
+Description: (Required) The target GitHub organization or individual user account to manage.
+
+Type: `string`
 
 ## Optional Inputs
 
 The following input variables are optional (have default values):
+
+### <a name="input_module_name"></a> [module\_name](#input\_module\_name)
+
+Description: (Optional) Name of the terraform module used by the modules factory.
+
+Type: `string`
+
+Default: `"terraform-module-modulesfactory"`
+
+### <a name="input_oauth_client_name"></a> [oauth\_client\_name](#input\_oauth\_client\_name)
+
+Description: (Optional) Name of the OAuth client.
+
+Type: `string`
+
+Default: `"GitHub"`
 
 ### <a name="input_organization"></a> [organization](#input\_organization)
 
@@ -74,7 +114,10 @@ Default: `null`
 The following resources are used by this module:
 
 - [tfe_project.this](https://registry.terraform.io/providers/hashicorp/tfe/latest/docs/resources/project) (resource)
+- [tfe_registry_module.this](https://registry.terraform.io/providers/hashicorp/tfe/latest/docs/resources/registry_module) (resource)
+- [tfe_variable.tfe_token](https://registry.terraform.io/providers/hashicorp/tfe/latest/docs/resources/variable) (resource)
 - [tfe_variable_set.this](https://registry.terraform.io/providers/hashicorp/tfe/latest/docs/resources/variable_set) (resource)
+- [tfe_oauth_client.client](https://registry.terraform.io/providers/hashicorp/tfe/latest/docs/data-sources/oauth_client) (data source)
 
 ## Outputs
 
