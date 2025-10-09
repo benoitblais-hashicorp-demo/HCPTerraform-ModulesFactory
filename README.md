@@ -167,7 +167,6 @@ The following resources are used by this module:
 - [tfe_variable.github_app_installation_id](https://registry.terraform.io/providers/hashicorp/tfe/latest/docs/resources/variable) (resource)
 - [tfe_variable.github_app_pem_file](https://registry.terraform.io/providers/hashicorp/tfe/latest/docs/resources/variable) (resource)
 - [tfe_variable.github_owner](https://registry.terraform.io/providers/hashicorp/tfe/latest/docs/resources/variable) (resource)
-- [tfe_variable.github_teams](https://registry.terraform.io/providers/hashicorp/tfe/latest/docs/resources/variable) (resource)
 - [tfe_variable.oauth_client_name](https://registry.terraform.io/providers/hashicorp/tfe/latest/docs/resources/variable) (resource)
 - [tfe_variable.organization](https://registry.terraform.io/providers/hashicorp/tfe/latest/docs/resources/variable) (resource)
 - [tfe_variable.tfe_token](https://registry.terraform.io/providers/hashicorp/tfe/latest/docs/resources/variable) (resource)
@@ -176,7 +175,15 @@ The following resources are used by this module:
 
 ## Outputs
 
-No outputs.
+The following outputs are exported:
+
+### <a name="output_github_teams"></a> [github\_teams](#output\_github\_teams)
+
+Description: n/a
+
+### <a name="output_github_teams_formated"></a> [github\_teams\_formated](#output\_github\_teams\_formated)
+
+Description: n/a
 
 <!-- markdownlint-enable -->
 <!-- END_TF_DOCS -->
