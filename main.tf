@@ -65,7 +65,7 @@ data "tfe_oauth_client" "client" {
 # The following code block is used to create module resources in the private registry.
 
 resource "tfe_registry_module" "this" {
-  count           = length(module.modules_factory_repository) > 0  ? 1 : 0
+  count           = length(module.modules_factory_repository) > 0 ? 1 : 0
   organization    = var.organization
   initial_version = "0.0.0"
   test_config {
