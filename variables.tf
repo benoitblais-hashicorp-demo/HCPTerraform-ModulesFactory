@@ -29,7 +29,7 @@ variable "project_tags" {
 variable "module_name" {
   description = "(Optional) Name of the terraform module used by the modules factory."
   type        = string
-  default     = "terraform-module-modulesfactory"
+  default     = "terraform-tfe-modulesfactory"
 }
 
 variable "oauth_client_name" {
