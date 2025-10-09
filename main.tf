@@ -90,6 +90,18 @@ module "modules_factory_repository" {
   topics      = ["factory", "terraform-module", "terraform", "terraform-managed"]
 }
 
+
+# The following module block is used to create and manage a GitHub team for the `modules factory`.
+
+module "policies_factory_git_teams" {
+  for_each    = { for team in var.github_teams : team.name => team }
+  source      = "./modules/git_team"
+  name        = each.value.name
+  description = try(each.value.description, null)
+  permission  = try(each.value.permission, null)
+  repository  = module.modules_factory_repository[0].repository.name
+}
+
 # The following block is use to get information about an OAuth client.
 
 data "tfe_oauth_client" "client" {

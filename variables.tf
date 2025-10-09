@@ -66,3 +66,23 @@ variable "app_pem_file" {
   nullable    = false
   sensitive   = true
 }
+
+variable "github_teams" {
+  description = <<EOT
+  (Optional) The github_teams block supports the following:
+    name        : (Required) The name of the team.
+    description : (Optional) A description of the team.
+    permission  : (Optional) The permissions of team members regarding the repository. Must be one of `pull`, `triage`, `push`, `maintain`, `admin` or the name of an existing custom repository role within the organisation.
+  EOT
+  type = list(object({
+    name        = string
+    description = optional(string)
+    permission  = optional(string, "pull")
+  }))
+  nullable = false
+  default = [{
+    name        = "Terraform-Modules-Owners"
+    description = "This group grant admin access to the Terraform Modules repository."
+    permission  = "admin"
+  }]
+}
