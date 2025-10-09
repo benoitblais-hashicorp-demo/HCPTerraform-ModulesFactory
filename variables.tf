@@ -84,10 +84,10 @@ variable "github_teams" {
     name        = "Terraform-Modules-Owners"
     description = "This group grant admin access to the Terraform Modules repository."
     permission  = "admin"
-  },
-  {
-    name        = "Terraform-Modules-Contributors"
-    description = "This group grant write access to the Terraform Modules repository."
-    permission  = "push"
+    },
+    {
+      name        = "Terraform-Modules-Contributors"
+      description = "This group grant write access to the Terraform Modules repository."
+      permission  = "push"
   }]
 }

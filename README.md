@@ -29,6 +29,12 @@ Source: ./modules/tfe_team
 
 Version:
 
+### <a name="module_policies_factory_git_teams"></a> [policies\_factory\_git\_teams](#module\_policies\_factory\_git\_teams)
+
+Source: ./modules/git_team
+
+Version:
+
 ## Required Inputs
 
 The following input variables are required:
@@ -60,6 +66,40 @@ Type: `string`
 ## Optional Inputs
 
 The following input variables are optional (have default values):
+
+### <a name="input_github_teams"></a> [github\_teams](#input\_github\_teams)
+
+Description:   (Optional) The github\_teams block supports the following:  
+    name        : (Required) The name of the team.  
+    description : (Optional) A description of the team.  
+    permission  : (Optional) The permissions of team members regarding the repository. Must be one of `pull`, `triage`, `push`, `maintain`, `admin` or the name of an existing custom repository role within the organisation.
+
+Type:
+
+```hcl
+list(object({
+    name        = string
+    description = optional(string)
+    permission  = optional(string, "pull")
+  }))
+```
+
+Default:
+
+```json
+[
+  {
+    "description": "This group grant admin access to the Terraform Modules repository.",
+    "name": "Terraform-Modules-Owners",
+    "permission": "admin"
+  },
+  {
+    "description": "This group grant write access to the Terraform Modules repository.",
+    "name": "Terraform-Modules-Contributors",
+    "permission": "push"
+  }
+]
+```
 
 ### <a name="input_module_name"></a> [module\_name](#input\_module\_name)
 
