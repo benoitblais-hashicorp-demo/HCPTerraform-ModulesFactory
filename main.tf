@@ -111,18 +111,6 @@ locals {
   github_teams_string = "[${join(",", local.github_teams_formated)}]"
 }
 
-output "github_teams_formated" {
-  value = local.github_teams_formated
-}
-
-output "github_teams" {
-  value = local.github_teams
-}
-
-output "name" {
-  value = local.github_teams_string
-}
-
 resource "tfe_variable" "github_teams" {
   count           = length(tfe_variable_set.this) > 0 ? 1 : 0
   key             = "organization"
