@@ -33,12 +33,48 @@ module "modules_factory_team_hcp" {
   token = true
 }
 
-# The following resource block is use to create variable that will be stored into the variable set previously created.
+# The following resource blocks are used to create variables that will be stored into the variable set previously created.
 
 resource "tfe_variable" "tfe_token" {
   count           = length(module.modules_factory_team_hcp) > 0 ? 1 : 0
   key             = "TFE_TOKEN"
   value           = module.modules_factory_team_hcp[0].token
+  category        = "env"
+  sensitive       = true
+  variable_set_id = tfe_variable_set.this[0].id
+}
+
+resource "tfe_variable" "github_app_id" {
+  count           = length(tfe_variable_set.this) > 0 ? 1 : 0
+  key             = "GITHUB_APP_ID"
+  value           = var.app_id
+  category        = "env"
+  sensitive       = true
+  variable_set_id = tfe_variable_set.this[0].id
+}
+
+resource "tfe_variable" "github_app_installation_id" {
+  count           = length(tfe_variable_set.this) > 0 ? 1 : 0
+  key             = "GITHUB_APP_INSTALLATION_ID"
+  value           = var.app_installation_id
+  category        = "env"
+  sensitive       = true
+  variable_set_id = tfe_variable_set.this[0].id
+}
+
+resource "tfe_variable" "github_app_pem_file" {
+  count           = length(tfe_variable_set.this) > 0 ? 1 : 0
+  key             = "GITHUB_APP_PEM_FILE"
+  value           = var.app_pem_file
+  category        = "env"
+  sensitive       = true
+  variable_set_id = tfe_variable_set.this[0].id
+}
+
+resource "tfe_variable" "github_owner" {
+  count           = length(tfe_variable_set.this) > 0 ? 1 : 0
+  key             = "GITHUB_OWNER"
+  value           = var.github_organization
   category        = "env"
   sensitive       = true
   variable_set_id = tfe_variable_set.this[0].id
@@ -50,7 +86,7 @@ module "modules_factory_repository" {
   source      = "./modules/git_repository"
   count       = length(tfe_project.this) > 0 && var.module_name != null ? 1 : 0
   name        = var.module_name
-  description = "Terraform module to manage ${element(split("-", var.module_name), 1)}"
+  description = "Terraform module to manage ${element(split("-", var.module_name), 1)} resources."
   topics      = ["factory", "terraform-module", "terraform", "terraform-managed"]
 }
 
