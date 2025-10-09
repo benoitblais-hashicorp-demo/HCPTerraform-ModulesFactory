@@ -230,7 +230,7 @@ resource "tfe_test_variable" "tfe_token" {
 }
 
 resource "tfe_test_variable" "oauth_client_name" {
-  key             = "TF_VAR_OAUTH_CLIENT_NAME"
+  key             = "TF_VAR_oauth_client_name"
   value           = var.oauth_client_name
   category        = "env"
   module_name     = tfe_registry_module.this[0].name
@@ -239,7 +239,7 @@ resource "tfe_test_variable" "oauth_client_name" {
 }
 
 resource "tfe_test_variable" "organization" {
-  key             = "TF_VAR_ORGANIZATION"
+  key             = "TF_VAR_organization"
   value           = var.organization
   category        = "env"
   module_name     = tfe_registry_module.this[0].name
