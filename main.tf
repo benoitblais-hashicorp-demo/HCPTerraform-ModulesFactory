@@ -80,8 +80,8 @@ resource "tfe_registry_module" "this" {
 }
 
 resource "tfe_no_code_module" "this" {
-  count = length(tfe_registry_module.this) > 0 ? 1 : 0
-  organization = var.organization
+  count           = length(tfe_registry_module.this) > 0 ? 1 : 0
+  organization    = var.organization
   registry_module = tfe_registry_module.this[0].id
 }
 
