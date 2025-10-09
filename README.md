@@ -67,7 +67,7 @@ Description: (Optional) Name of the terraform module used by the modules factory
 
 Type: `string`
 
-Default: `"terraform-module-modulesfactory"`
+Default: `"terraform-tfe-modulesfactory"`
 
 ### <a name="input_oauth_client_name"></a> [oauth\_client\_name](#input\_oauth\_client\_name)
 
