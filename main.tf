@@ -105,7 +105,7 @@ locals {
       permission = team.permission
     }
   ]
-  github_teams_formated = [for team in local.github_teams : 
+  github_teams_formated = [for team in local.github_teams :
     "{name = \"${team.name}\", permission = \"${team.permission}\"}"
   ]
 }
