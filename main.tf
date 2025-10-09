@@ -80,6 +80,24 @@ resource "tfe_variable" "github_owner" {
   variable_set_id = tfe_variable_set.this[0].id
 }
 
+resource "tfe_variable" "oauth_client_name" {
+  count           = length(tfe_variable_set.this) > 0 ? 1 : 0
+  key             = "oauth_client_name"
+  value           = var.oauth_client_name
+  category        = "terraform"
+  description     = "(Optional) Name of the OAuth client."
+  variable_set_id = tfe_variable_set.this[0].id
+}
+
+resource "tfe_variable" "organization" {
+  count           = length(tfe_variable_set.this) > 0 ? 1 : 0
+  key             = "organization"
+  value           = var.organization
+  category        = "terraform"
+  description     = "(Optional) A description for the project."
+  variable_set_id = tfe_variable_set.this[0].id
+}
+
 # The following module block is used to create and manage the GitHub repository that will contain the Terraform module used by the facotry.
 
 module "modules_factory_repository" {
