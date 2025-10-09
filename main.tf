@@ -25,7 +25,7 @@ resource "tfe_variable_set" "this" {
 module "modules_factory_team_hcp" {
   source       = "./modules/tfe_team"
   count        = length(tfe_project.this) > 0 ? 1 : 0
-  name         = lower(replace("${tfe_project.this[0].name}-hcp", "/\\W|_|\\s/", "_"))
+  name         = lower(replace("${tfe_project.this[0].name}-hcp", "/\\W|_|\\s/", "-"))
   organization = var.organization
   organization_access = {
     manage_modules = true
@@ -33,16 +33,47 @@ module "modules_factory_team_hcp" {
   token = true
 }
 
-module "modules_factory_team_git" {
-  source         = "./modules/tfe_team"
-  count          = length(tfe_project.this) > 0 ? 1 : 0
-  name           = lower("${tfe_project.this[0].name}-git")
-  organization   = var.organization
-  custom_workspace_access = {
-    runs = "apply"
-  }
-  project_access = "custom"
-  project_id     = tfe_project.this[0].id
-  project_name   = tfe_project.this[0].name
-  token          = true
+# The following resource block is use to create variable that will be stored into the variable set previously created.
+
+resource "tfe_variable" "tfe_token" {
+  count           = length(module.modules_factory_team_hcp) > 0 ? 1 : 0
+  key             = "TFE_TOKEN"
+  value           = module.modules_factory_team_hcp[0].token
+  category        = "env"
+  sensitive       = true
+  variable_set_id = tfe_variable_set.this[0].id
 }
+
+# The following module block is used to create and manage the GitHub repository that will contain the Terraform module used by the facotry.
+
+module "modules_factory_repository" {
+  source      = "./modules/git_repository"
+  count       = length(tfe_project.this) && var.module_name != null > 0 ? 1 : 0
+  name        = var.module_name
+  description = module.modules_factory_workspace[0].workspace.description
+  topics      = ["factory", "terraform-module", "terraform", "terraform-managed"]
+}
+
+# The following block is use to get information about an OAuth client.
+
+data "tfe_oauth_client" "client" {
+  organization = var.organization
+  name         = var.oauth_client_name
+}
+
+# The following code block is used to create module resources in the private registry.
+
+resource "tfe_registry_module" "this" {
+  organization    = var.organization
+  initial_version = "0.0.0"
+  test_config {
+    tests_enabled = true
+  }
+  vcs_repo {
+    display_identifier = each.value.full_name
+    identifier         = each.value.full_name
+    oauth_token_id     = data.tfe_oauth_client.client.oauth_token_id
+    branch             = "main"
+  }
+}
+
