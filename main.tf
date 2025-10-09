@@ -200,3 +200,12 @@ resource "tfe_test_variable" "tfe_token" {
   organization    = var.organization
   sensitive       = true
 }
+
+resource "tfe_test_variable" "oauth_client_name" {
+  key             = "TF_VAR_OAUTH_CLIENT_NAME"
+  value           = var.oauth_client_name
+  category        = "env"
+  module_name     = tfe_registry_module.this[0].name
+  module_provider = tfe_registry_module.this[0].module_provider
+  organization    = var.organization
+}
