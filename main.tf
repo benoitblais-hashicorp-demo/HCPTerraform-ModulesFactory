@@ -108,6 +108,7 @@ locals {
   github_teams_formated = [for team in local.github_teams :
     "{name = \"${team.name}\", permission = \"${team.permission}\"}"
   ]
+  github_teams_string = "[${join(",", local.github_teams_formated)}]"
 }
 
 output "github_teams_formated" {
@@ -116,6 +117,10 @@ output "github_teams_formated" {
 
 output "github_teams" {
   value = local.github_teams
+}
+
+output "name" {
+  value = local.github_teams_string
 }
 
 # resource "tfe_variable" "github_teams" {
