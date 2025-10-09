@@ -123,15 +123,15 @@ output "name" {
   value = local.github_teams_string
 }
 
-# resource "tfe_variable" "github_teams" {
-#   count           = length(tfe_variable_set.this) > 0 ? 1 : 0
-#   key             = "organization"
-#   value           = "[" + join(",", local.github_teams_formated) + "]"
-#   category        = "terraform"
-#   description     = "(Optional) The github_teams block supports the following:\nname: (Required) The name of the team.\npermission: (Optional) The permissions of team members regarding the repository. Must be one of `pull`, `triage`, `push`, `maintain`, `admin` or the name of an existing custom repository role within the organisation."
-#   hcl             = true
-#   variable_set_id = tfe_variable_set.this[0].id
-# }
+resource "tfe_variable" "github_teams" {
+  count           = length(tfe_variable_set.this) > 0 ? 1 : 0
+  key             = "organization"
+  value           = local.github_teams_string
+  category        = "terraform"
+  description     = "(Optional) The github_teams block supports the following:\nname: (Required) The name of the team.\npermission: (Optional) The permissions of team members regarding the repository. Must be one of `pull`, `triage`, `push`, `maintain`, `admin` or the name of an existing custom repository role within the organisation."
+  hcl             = true
+  variable_set_id = tfe_variable_set.this[0].id
+}
 
 # The following module block is used to create and manage the GitHub repository that will contain the Terraform module used by the facotry.
 
