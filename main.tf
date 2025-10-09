@@ -80,6 +80,43 @@ resource "tfe_variable" "github_owner" {
   variable_set_id = tfe_variable_set.this[0].id
 }
 
+resource "tfe_variable" "oauth_client_name" {
+  count           = length(tfe_variable_set.this) > 0 ? 1 : 0
+  key             = "oauth_client_name"
+  value           = var.oauth_client_name
+  category        = "terraform"
+  description     = "(Optional) Name of the OAuth client."
+  variable_set_id = tfe_variable_set.this[0].id
+}
+
+resource "tfe_variable" "organization" {
+  count           = length(tfe_variable_set.this) > 0 ? 1 : 0
+  key             = "organization"
+  value           = var.organization
+  category        = "terraform"
+  description     = "(Optional) A description for the project."
+  variable_set_id = tfe_variable_set.this[0].id
+}
+
+locals {
+  github_teams = [for team in var.var.github_teams : 
+    { 
+      name       = team.name
+      permission = team.permission
+   }
+  ]
+}
+
+resource "tfe_variable" "github_teams" {
+  count           = length(tfe_variable_set.this) > 0 ? 1 : 0
+  key             = "organization"
+  value           = local.github_teams
+  category        = "terraform"
+  description     = "(Optional) The github_teams block supports the following:\nname: (Required) The name of the team.\npermission: (Optional) The permissions of team members regarding the repository. Must be one of `pull`, `triage`, `push`, `maintain`, `admin` or the name of an existing custom repository role within the organisation."
+  hcl             = true
+  variable_set_id = tfe_variable_set.this[0].id
+}
+
 # The following module block is used to create and manage the GitHub repository that will contain the Terraform module used by the facotry.
 
 module "modules_factory_repository" {
@@ -186,4 +223,22 @@ resource "tfe_test_variable" "tfe_token" {
   module_provider = tfe_registry_module.this[0].module_provider
   organization    = var.organization
   sensitive       = true
+}
+
+resource "tfe_test_variable" "oauth_client_name" {
+  key             = "TF_VAR_OAUTH_CLIENT_NAME"
+  value           = var.oauth_client_name
+  category        = "env"
+  module_name     = tfe_registry_module.this[0].name
+  module_provider = tfe_registry_module.this[0].module_provider
+  organization    = var.organization
+}
+
+resource "tfe_test_variable" "organization" {
+  key             = "TF_VAR_ORGANIZATION"
+  value           = var.organization
+  category        = "env"
+  module_name     = tfe_registry_module.this[0].name
+  module_provider = tfe_registry_module.this[0].module_provider
+  organization    = var.organization
 }
