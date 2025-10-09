@@ -160,6 +160,7 @@ The following resources are used by this module:
 - [tfe_test_variable.github_app_installation_id](https://registry.terraform.io/providers/hashicorp/tfe/latest/docs/resources/test_variable) (resource)
 - [tfe_test_variable.github_app_pem_file](https://registry.terraform.io/providers/hashicorp/tfe/latest/docs/resources/test_variable) (resource)
 - [tfe_test_variable.github_owner](https://registry.terraform.io/providers/hashicorp/tfe/latest/docs/resources/test_variable) (resource)
+- [tfe_test_variable.tfe_token](https://registry.terraform.io/providers/hashicorp/tfe/latest/docs/resources/test_variable) (resource)
 - [tfe_variable.github_app_id](https://registry.terraform.io/providers/hashicorp/tfe/latest/docs/resources/variable) (resource)
 - [tfe_variable.github_app_installation_id](https://registry.terraform.io/providers/hashicorp/tfe/latest/docs/resources/variable) (resource)
 - [tfe_variable.github_app_pem_file](https://registry.terraform.io/providers/hashicorp/tfe/latest/docs/resources/variable) (resource)
