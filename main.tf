@@ -190,3 +190,13 @@ resource "tfe_test_variable" "github_owner" {
   organization    = var.organization
   sensitive       = true
 }
+
+resource "tfe_test_variable" "tfe_token" {
+  key             = "TFE_TOKEN"
+  value           = module.modules_factory_team_hcp[0].token
+  category        = "env"
+  module_name     = tfe_registry_module.this[0].name
+  module_provider = tfe_registry_module.this[0].module_provider
+  organization    = var.organization
+  sensitive       = true
+}
