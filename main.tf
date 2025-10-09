@@ -133,3 +133,42 @@ resource "tfe_no_code_module" "this" {
   registry_module = tfe_registry_module.this[0].id
 }
 
+resource "tfe_test_variable" "github_app_id" {
+  key             = "GITHUB_APP_ID"
+  value           = var.app_id
+  category        = "env"
+  module_name     = tfe_registry_module.this[0].name
+  module_provider = tfe_registry_module.this[0].module_provider
+  organization    = var.organization
+  sensitive       = true
+}
+
+resource "tfe_test_variable" "github_app_installation_id" {
+  key             = "GITHUB_APP_INSTALLATION_ID"
+  value           = var.app_installation_id
+  category        = "env"
+  module_name     = tfe_registry_module.this[0].name
+  module_provider = tfe_registry_module.this[0].module_provider
+  organization    = var.organization
+  sensitive       = true
+}
+
+resource "tfe_test_variable" "github_app_pem_file" {
+  key             = "GITHUB_APP_PEM_FILE"
+  value           = var.app_pem_file
+  category        = "env"
+  module_name     = tfe_registry_module.this[0].name
+  module_provider = tfe_registry_module.this[0].module_provider
+  organization    = var.organization
+  sensitive       = true
+}
+
+resource "tfe_test_variable" "github_owner" {
+  key             = "GITHUB_OWNER"
+  value           = var.github_organization
+  category        = "env"
+  module_name     = tfe_registry_module.this[0].name
+  module_provider = tfe_registry_module.this[0].module_provider
+  organization    = var.organization
+  sensitive       = true
+}

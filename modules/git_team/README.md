@@ -132,7 +132,7 @@ Description: (Optional) The level of privacy for the team. Must be one of `secre
 
 Type: `string`
 
-Default: `"secret"`
+Default: `"closed"`
 
 ### <a name="input_repository"></a> [repository](#input\_repository)
 

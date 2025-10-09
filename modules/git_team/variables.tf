@@ -36,7 +36,7 @@ variable "permission" {
 variable "privacy" {
   description = "(Optional) The level of privacy for the team. Must be one of `secret` or `closed`."
   type        = string
-  default     = "secret"
+  default     = "closed"
   validation {
     condition     = var.privacy != null ? contains(["secret", "closed"], var.privacy) ? true : false : true
     error_message = "Valid values are `secret`, or `closed`."
