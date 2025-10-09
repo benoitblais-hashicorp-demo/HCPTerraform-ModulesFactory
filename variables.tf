@@ -39,7 +39,7 @@ variable "oauth_client_name" {
   default     = "GitHub"
 }
 
-variable "github_organization"{
+variable "github_organization" {
   description = "(Required) The target GitHub organization or individual user account to manage."
   type        = string
   nullable    = false
