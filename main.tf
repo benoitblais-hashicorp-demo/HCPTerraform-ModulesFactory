@@ -134,6 +134,7 @@ resource "tfe_no_code_module" "this" {
 }
 
 resource "tfe_test_variable" "github_app_id" {
+  count           = length(tfe_registry_module.this) > 0 ? 1 : 0
   key             = "GITHUB_APP_ID"
   value           = var.app_id
   category        = "env"
@@ -144,6 +145,7 @@ resource "tfe_test_variable" "github_app_id" {
 }
 
 resource "tfe_test_variable" "github_app_installation_id" {
+  count           = length(tfe_registry_module.this) > 0 ? 1 : 0
   key             = "GITHUB_APP_INSTALLATION_ID"
   value           = var.app_installation_id
   category        = "env"
@@ -154,6 +156,7 @@ resource "tfe_test_variable" "github_app_installation_id" {
 }
 
 resource "tfe_test_variable" "github_app_pem_file" {
+  count           = length(tfe_registry_module.this) > 0 ? 1 : 0
   key             = "GITHUB_APP_PEM_FILE"
   value           = var.app_pem_file
   category        = "env"
@@ -164,6 +167,7 @@ resource "tfe_test_variable" "github_app_pem_file" {
 }
 
 resource "tfe_test_variable" "github_owner" {
+  count           = length(tfe_registry_module.this) > 0 ? 1 : 0
   key             = "GITHUB_OWNER"
   value           = var.github_organization
   category        = "env"
@@ -174,6 +178,7 @@ resource "tfe_test_variable" "github_owner" {
 }
 
 resource "tfe_test_variable" "tfe_token" {
+  count           = length(tfe_registry_module.this) > 0 ? 1 : 0
   key             = "TFE_TOKEN"
   value           = module.modules_factory_team_hcp[0].token
   category        = "env"
