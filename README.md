@@ -176,19 +176,7 @@ The following resources are used by this module:
 
 ## Outputs
 
-The following outputs are exported:
-
-### <a name="output_github_teams"></a> [github\_teams](#output\_github\_teams)
-
-Description: n/a
-
-### <a name="output_github_teams_formated"></a> [github\_teams\_formated](#output\_github\_teams\_formated)
-
-Description: n/a
-
-### <a name="output_name"></a> [name](#output\_name)
-
-Description: n/a
+No outputs.
 
 <!-- markdownlint-enable -->
 <!-- END_TF_DOCS -->
