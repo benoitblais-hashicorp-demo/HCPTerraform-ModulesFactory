@@ -57,6 +57,7 @@ module "modules_factory_repository" {
 # The following block is use to get information about an OAuth client.
 
 data "tfe_oauth_client" "client" {
+  count        = var.oauth_client_name != null ? 0 : 1
   organization = var.organization
   name         = var.oauth_client_name
 }
@@ -64,6 +65,7 @@ data "tfe_oauth_client" "client" {
 # The following code block is used to create module resources in the private registry.
 
 resource "tfe_registry_module" "this" {
+  count           = length(module.modules_factory_repository) > 1 && length(data.tfe_oauth_client.client) > 0 ? 1 : 0
   organization    = var.organization
   initial_version = "0.0.0"
   test_config {
@@ -72,8 +74,14 @@ resource "tfe_registry_module" "this" {
   vcs_repo {
     display_identifier = module.modules_factory_repository[0].full_name
     identifier         = module.modules_factory_repository[0].full_name
-    oauth_token_id     = data.tfe_oauth_client.client.oauth_token_id
+    oauth_token_id     = data.tfe_oauth_client.client[0].oauth_token_id
     branch             = "main"
   }
+}
+
+resource "tfe_no_code_module" "this" {
+  count = length(tfe_registry_module.this) > 0 ? 1 : 0
+  organization = var.organization
+  registry_module = tfe_registry_module.this[0].id
 }
 
