@@ -101,6 +101,14 @@ Default:
 ]
 ```
 
+### <a name="input_github_template"></a> [github\_template](#input\_github\_template)
+
+Description: (Optional) The GitHub repository to use as a template when creating new repositories. The repository must be a template repository. If not provided, the default template provided by the module will be used.
+
+Type: `string`
+
+Default: `null`
+
 ### <a name="input_module_name"></a> [module\_name](#input\_module\_name)
 
 Description: (Optional) Name of the terraform module used by the modules factory.
@@ -170,6 +178,7 @@ The following resources are used by this module:
 - [tfe_variable.github_teams](https://registry.terraform.io/providers/hashicorp/tfe/latest/docs/resources/variable) (resource)
 - [tfe_variable.oauth_client_name](https://registry.terraform.io/providers/hashicorp/tfe/latest/docs/resources/variable) (resource)
 - [tfe_variable.organization](https://registry.terraform.io/providers/hashicorp/tfe/latest/docs/resources/variable) (resource)
+- [tfe_variable.template](https://registry.terraform.io/providers/hashicorp/tfe/latest/docs/resources/variable) (resource)
 - [tfe_variable.tfe_token](https://registry.terraform.io/providers/hashicorp/tfe/latest/docs/resources/variable) (resource)
 - [tfe_variable_set.this](https://registry.terraform.io/providers/hashicorp/tfe/latest/docs/resources/variable_set) (resource)
 - [tfe_oauth_client.client](https://registry.terraform.io/providers/hashicorp/tfe/latest/docs/data-sources/oauth_client) (data source)
