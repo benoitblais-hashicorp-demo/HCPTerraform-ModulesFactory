@@ -99,11 +99,11 @@ resource "tfe_variable" "organization" {
 }
 
 locals {
-  github_teams = [for team in var.github_teams : 
-    { 
+  github_teams = [for team in var.github_teams :
+    {
       name       = team.name
       permission = team.permission
-   }
+    }
   ]
 }
 
