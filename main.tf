@@ -50,7 +50,7 @@ module "modules_factory_repository" {
   source      = "./modules/git_repository"
   count       = length(tfe_project.this) > 0 && var.module_name != null ? 1 : 0
   name        = var.module_name
-  description = module.modules_factory_workspace[0].workspace.description
+  description = "Terraform module to manage ${element(split("-",var.module_name),1)}"
   topics      = ["factory", "terraform-module", "terraform", "terraform-managed"]
 }
 
