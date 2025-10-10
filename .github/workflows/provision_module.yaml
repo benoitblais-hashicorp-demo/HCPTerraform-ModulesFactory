@@ -53,7 +53,9 @@ jobs:
           auth_header="Authorization: Bearer ${TFC_API_TOKEN}"
           content_header="Content-Type: application/vnd.api+json"
           workspace_name="terraform-${PROVIDER}-${NAME}"
+          echo "INFO     | Creating workspace ${workspace_name} in organization ${TFC_ORGANIZATION}."
           json_string='{"data":{"type":"workspaces","attributes":{"name":"'"${workspace_name}"'","auto_apply":true,"terraform-version":"latest"},"relationships":{"project":{"data":{"id":"prj-BYpph2TYRdFuifvr","type":"project"}},"vars":{"data":[{"type":"vars","attributes":{"key":"module_name","value":"'"${NAME}"'","category":"terraform"}},{"type":"vars","attributes":{"key":"module_provider","value":"'"${PROVIDER}"'","category":"terraform"}}]}}}}'
           json_payload=$(echo "${json_string}" | jq)
+          echo "$json_payload"
           run=$(curl -sS --request POST --url "${tfc_api_url}/no-code-modules/nocode-C8CZ8RCAFuvAWtMu/workspaces" \
           --header "${auth_header}" --header "${content_header}" --data "${json_payload}")
