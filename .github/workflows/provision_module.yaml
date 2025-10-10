@@ -73,7 +73,7 @@ jobs:
             exit 1
           else
             echo "INFO     | No-code module ID is ${no_code_id}."
-            echo "NO_CODE_ID=${no_code_id}" >> $GITHUB_ENV
+            echo "NO_CODE_ID=${no_code_id}" >> "$GITHUB_ENV"
           fi
 
       - name: Retreive HCP Terraform Project ID
@@ -103,7 +103,7 @@ jobs:
             exit 1
           else
             echo "INFO     | Project ID is ${project_id}."
-            echo "PROJECT_ID=${project_id}" >> $GITHUB_ENV
+            echo "project_id=${project_id}" >> "$GITHUB_ENV"
           fi
 
       - name: Provision Module
@@ -111,7 +111,7 @@ jobs:
           PROVIDER: ${{ github.event.inputs.provider }}
           NAME: ${{ github.event.inputs.name }}
           NO_CODE_ID: ${{ steps.get_no_code_module_id.outputs.NO_CODE_ID }}
-          PROJECT_ID: ${{ steps.get_project_id.outputs.PROJECT_ID }}
+          PROJECT_ID: ${{ steps.get_project_id.outputs.project_id }}
           NO_CODE: ${{ github.event.inputs.no-code }}
         run: |
           echo "INFO     | Build required variables."
