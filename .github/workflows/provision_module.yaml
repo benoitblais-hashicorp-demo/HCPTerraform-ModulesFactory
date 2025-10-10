@@ -1,0 +1,57 @@
+name: Provision Module
+
+on:  # yamllint disable-line rule:truthy
+  workflow_dispatch:
+    inputs:
+      name:
+        description: 'Name of the module to create.'
+        required: true
+        type: string
+      provider:
+        description: 'The main provider the module uses'
+        required: true
+        type: choice
+        options:
+          - 'aws'
+          - 'azuread'
+          - 'azurerm'
+          - 'github'
+          - 'hcp'
+          - 'local'
+          - 'null'
+          - 'random'
+          - 'terraform'
+          - 'tfe'
+          - 'time'
+          - 'tls'
+      no-code:
+        description: 'Whether it is a no-code module or not.'
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+  pull-requests: read
+
+jobs:
+  build:
+    name: Provision Module
+    runs-on: ubuntu-latest
+    env:
+      TFC_ORGANIZATION: "benoitblais-hashicorp"
+      TFC_API_TOKEN: ${{ secrets.TFE_TOKEN }}
+    steps:
+
+      - name: Provision Module
+        run: |
+          echo "INFO     | Build required variables."
+          tfc_api_url="https://app.terraform.io/api/v2"
+          auth_header="Authorization: Bearer ${TFC_API_TOKEN}"
+          content_header="Content-Type: application/vnd.api+json"
+          workspace_name="terraform-${github.event.inputs.provider}-${github.event.inputs.name}"
+          json_string='{"data": {"type": "workspaces","attributes": {"name":  "'"${workspace_name}"'",},"relationships": {"project": {"data": {"id": "prj-BYpph2TYRdFuifvr","type": "project"}},"vars": {"data": [{"type": "vars","attributes": {"key": "module_name","value": "'"${github.event.inputs.name}"'","category": "terraform",}},{"type": "vars","attributes": {"key": "module_provider","value": "'"${github.event.inputs.provider}"'","category": "terraform",}}]}}}}'
+          json_payload=$(echo "${json_string}" | jq)
+
+          run=$(curl -sS --request POST --url "${tfc_api_url}/no-code-modules/nocode-C8CZ8RCAFuvAWtMu/workspaces" \
+          --header "${auth_header}" --header "${content_header}" --data "${json_payload}")
