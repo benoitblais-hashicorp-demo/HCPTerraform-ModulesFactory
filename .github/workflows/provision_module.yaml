@@ -157,6 +157,7 @@ jobs:
           auth_header="Authorization: Bearer ${TFC_API_TOKEN}"
           content_header="Content-Type: application/vnd.api+json" 
           json_string='{"data":{"id":"'"WORKSPACE_ID"'","type":"workspaces","attributes":{"structured-run-output-enabled":false,"terraform-version": "latest"}}}'
+          json_payload=$(echo "${json_string}" | jq)
           run=$(curl -sS --request PATCH --url "${tfc_api_url}/organizations/${TFC_ORGANIZATION}/workspaces/${WORKSPACE_NAME}" \
           --header "${auth_header}" --header "${content_header}" --data "${json_payload}")
           if ! [[ "${run}" =~ "{\"data\":" ]]; then
