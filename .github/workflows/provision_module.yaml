@@ -54,7 +54,7 @@ jobs:
           content_header="Content-Type: application/vnd.api+json"
           echo "INFO     | Get module information."
           {
-            run=$(curl -sS --request GET --url "${tfc_api_url}/organizations/${TFC_ORGANIZATION}/registry-modules/private/${TFC_ORGANIZATION}/${module_name}/${module_provider}" \
+            run=$(curl -sS --request GET --url "${tfc_api_url}/organizations/${TFC_ORGANIZATION}/registry-modules/private/${TFC_ORGANIZATION}/${TFC_MODULE_NAME}/${TFC_MODULE_PROVIDER}" \
             --header "${auth_header}" --header "${content_header}")
             if ! [[ "${run}" =~ "{\"data\":" ]]; then
               echo "ERROR    | Unable to to get module information."
