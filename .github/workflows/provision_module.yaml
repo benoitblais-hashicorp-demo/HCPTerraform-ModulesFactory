@@ -50,7 +50,7 @@ jobs:
         run: |
           echo "INFO     | Build required variables."
           tfc_api_url="https://app.terraform.io/api/v2"
-          auth_header="Authorization: Bearer ${TFC_API_TOKEN}"
+          auth_header="Authorization: Bearer ${TFC_TOKEN}"
           content_header="Content-Type: application/vnd.api+json"
           workspace_name="terraform-${PROVIDER}-${NAME}"
           echo "INFO     | Creating workspace ${workspace_name} in organization ${TFC_ORGANIZATION}."
