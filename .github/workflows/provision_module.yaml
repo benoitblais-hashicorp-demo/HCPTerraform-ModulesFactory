@@ -128,7 +128,7 @@ jobs:
           json_string='{"data":{"type":"workspaces","attributes":{"name":"'"${workspace_name}"'","auto_apply":true},"relationships":{"project":{"data":{"id":"'"${PROJECT_ID}"'","type":"project"}},"vars":{"data":[{"type":"vars","attributes":{"key":"module_name","value":"'"${NAME}"'","category":"terraform"}},{"type":"vars","attributes":{"key":"module_provider","value":"'"${PROVIDER}"'","category":"terraform"}},'"${no_code}"']}}}}'
           json_payload=$(echo "${json_string}" | jq)
           echo "$json_payload"
-          run=(curl -sS --request POST --url "${tfc_api_url}/no-code-modules/$NO_CODE_ID}/workspaces" \
+          run=$(curl -sS --request POST --url "${tfc_api_url}/no-code-modules/$NO_CODE_ID}/workspaces" \
           --header "${auth_header}" --header "${content_header}" --data "${json_payload}")
           if ! [[ "${run}" =~ "{\"data\":" ]]; then
             echo "ERROR    | Unable to create workspace."
