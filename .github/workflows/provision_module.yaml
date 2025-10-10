@@ -108,6 +108,7 @@ jobs:
           fi
 
       - name: Provision Module
+        id: provision
         env:
           PROVIDER: ${{ github.event.inputs.provider }}
           NAME: ${{ github.event.inputs.name }}
@@ -120,7 +121,7 @@ jobs:
           auth_header="Authorization: Bearer ${TFC_API_TOKEN}"
           content_header="Content-Type: application/vnd.api+json"
           workspace_name="terraform-${PROVIDER}-${NAME}"
-          echo "INFO     | Creating workspace ${workspace_name} in project ${TFC_PROJECT}."
+          echo "INFO     | Create workspace ${workspace_name} in project ${TFC_PROJECT}."
           if [ "${NO_CODE}" = true ] ; then
             no_code='{"type":"vars","attributes":{"key":"no_code_module","value":"true","category":"terraform"}}'
           else
@@ -136,4 +137,32 @@ jobs:
             exit 1
           else
             echo "INFO     | Workspace created successfully."
+            workspace_id=$(echo "${run}" | jq -r '.data.id')
+            echo "INFO     | Workspace ID is ${workspace_id}."
+            workspace_name=$(echo "${run}" | jq -r '.data.attributes.name')
+            echo "INFO     | Workspace name is ${workspace_name}."
+            echo "workspace_id=${workspace_id}" >> "$GITHUB_OUTPUT"
+            echo "workspace_name=${workspace_name}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Provision Module
+        env:
+          PROVIDER: ${{ github.event.inputs.provider }}
+          NAME: ${{ github.event.inputs.name }}
+          WORKSPACE_ID: ${{ steps.provision.outputs.workspace_id }}
+          WORKSPACE_NAME: ${{ steps.provision.outputs.workspace_name }}
+        run: |
+          echo "INFO     | Build required variables."
+          tfc_api_url="https://app.terraform.io/api/v2"
+          auth_header="Authorization: Bearer ${TFC_API_TOKEN}"
+          content_header="Content-Type: application/vnd.api+json" 
+          json_string='{"data":{"id":"'"WORKSPACE_ID"'","type":"workspaces","attributes":{"structured-run-output-enabled":false,"terraform-version": "latest"}}}'
+          run=$(curl -sS --request PATCH --url "${tfc_api_url}/organizations/${TFC_ORGANIZATION}/workspaces/${WORKSPACE_NAME}" \
+          --header "${auth_header}" --header "${content_header}" --data "${json_payload}")
+          if ! [[ "${run}" =~ "{\"data\":" ]]; then
+            echo "ERROR    | Unable to update workspace."
+            echo "${run}"
+            exit 1
+          else
+            echo "INFO     | Workspace updated successfully."
           fi
