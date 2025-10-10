@@ -74,7 +74,7 @@ jobs:
             exit 1
           else
             echo "INFO     | No-code module ID is ${no_code_id}."
-            echo "NO_CODE_ID=${no_code_id}" >> "$GITHUB_ENV"
+            echo "NO_CODE_ID=${no_code_id}" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Retreive HCP Terraform Project ID
@@ -104,7 +104,7 @@ jobs:
             exit 1
           else
             echo "INFO     | Project ID is ${project_id}."
-            echo "id=${project_id}" >> "$GITHUB_ENV"
+            echo "id=${project_id}" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Provision Module
@@ -120,7 +120,6 @@ jobs:
           auth_header="Authorization: Bearer ${TFC_API_TOKEN}"
           content_header="Content-Type: application/vnd.api+json"
           workspace_name="terraform-${PROVIDER}-${NAME}"
-          echo "INFO     | Project ID is ${PROJECT_ID}."
           echo "INFO     | Creating workspace ${workspace_name} in project ${TFC_PROJECT}."
           if [ "${NO_CODE}" = true ] ; then
             no_code='{"type":"vars","attributes":{"key":"no_code_module","value":"true","category":"terraform"}}'
@@ -140,3 +139,7 @@ jobs:
             echo "INFO     | Workspace created successfully."
             echo "${run}"
           fi
+          # json_string='{"data":{"type":"workspaces","attributes":{"name":"'"${workspace_name}"'","auto_apply":true},"relationships":{"project":{"data":{"id":"prj-BYpph2TYRdFuifvr","type":"project"}},"vars":{"data":[{"type":"vars","attributes":{"key":"module_name","value":"'"${NAME}"'","category":"terraform"}},{"type":"vars","attributes":{"key":"module_provider","value":"'"${PROVIDER}"'","category":"terraform"}}]}}}}'
+          # json_payload=$(echo "${json_string}" | jq)
+          # curl --request POST --url "${tfc_api_url}/no-code-modules/nocode-C8CZ8RCAFuvAWtMu/workspaces" \
+          # --header "${auth_header}" --header "${content_header}" --data "${json_payload}"
