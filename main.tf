@@ -12,6 +12,8 @@ resource "tfe_project" "this" {
 
 # The following code block is used to create and manage the variable set at the project level that will own the variables required by the child workspaces.
 
+# NOTE: How can we configure the scope
+
 resource "tfe_variable_set" "this" {
   count             = length(tfe_project.this) > 0 ? 1 : 0
   name              = lower(replace("${tfe_project.this[0].name}-hcp", "/\\W|_|\\s/", "-"))
