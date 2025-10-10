@@ -39,9 +39,70 @@ jobs:
     name: Provision Module
     runs-on: ubuntu-latest
     env:
-      TFC_ORGANIZATION: "benoitblais-hashicorp"
       TFC_API_TOKEN: ${{ secrets.TFE_TOKEN }}
+      TFC_ORGANIZATION: "benoitblais-hashicorp"
+      TFC_PROJECT: "Terraform Modules Factory"
+      TFC_MODULE_NAME: "modulesfactory"
+      TFC_MODULE_PROVIDER: "tfe"
     steps:
+
+      - name: Retreive no-code module ID
+        run: |
+          echo "INFO     | Build required variables."
+          tfc_api_url="https://app.terraform.io/api/v2"
+          auth_header="Authorization: Bearer ${TFC_API_TOKEN}"
+          content_header="Content-Type: application/vnd.api+json"
+          echo "INFO     | Get module information."
+          {
+            run=$(curl -sS --request GET --url "${tfc_api_url}/organizations/${TFC_ORGANIZATION}/registry-modules/private/${TFC_ORGANIZATION}/${module_name}/${module_provider}" \
+            --header "${auth_header}" --header "${content_header}")
+            if ! [[ "${run}" =~ "{\"data\":" ]]; then
+              echo "ERROR    | Unable to to get module information."
+              echo "${run}"
+              exit 1
+            fi
+          } ||
+          {
+            echo "ERROR    | An error occurred during the API call to get module information."
+            exit 1
+          }
+          no_code_id=$(echo "${run}" | jq -r '.data.relationships."no-code-modules".data[].id')
+          if [ -z "${no_code_id}" ] || [ "${no_code_id}" == "null" ]; then
+            echo "ERROR    | Unable to find no-code module ID."
+            exit 1
+          else
+            echo "INFO     | No-code module ID is ${no_code_id}."
+            echo "NO_CODE_ID=${no_code_id}" >> $GITHUB_ENV
+          fi
+
+      - name: Retreive HCP Terraform Project ID
+        run: |
+          echo "INFO     | Build required variables."
+          tfc_api_url="https://app.terraform.io/api/v2"
+          auth_header="Authorization: Bearer ${TFC_API_TOKEN}"
+          content_header="Content-Type: application/vnd.api+json"
+          echo "INFO     | Run API call to get project list."
+          {
+            run=$(curl -sS --request GET --url "${tfc_api_url}/organizations/${TFC_ORGANIZATION}/projects" \
+            --header "${auth_header}" --header "${content_header}")
+            if ! [[ "${run}" =~ "{\"data\":" ]]; then
+              echo "ERROR    | Unable to get project list."
+              echo "${run}"
+              exit 1
+            fi
+          } ||
+          {
+            echo "ERROR    | An error occurred during the API call to get project list."
+            exit 1
+          }
+          project_id=$(echo "${run}" | jq -r '.data[] | select(.attributes.name=="'"${TFC_PROJECT}"'") | .id')
+          if [ -z "${project_id}" ] || [ "${project_id}" == "null" ]; then
+            echo "ERROR    | Unable to find project ID."
+            exit 1
+          else
+            echo "INFO     | Project ID is ${project_id}."
+            echo "PROJECT_ID=${project_id}" >> $GITHUB_ENV
+          fi
 
       - name: Provision Module
         env:
@@ -57,5 +118,5 @@ jobs:
           json_string='{"data":{"type":"workspaces","attributes":{"name":"'"${workspace_name}"'","auto_apply":true},"relationships":{"project":{"data":{"id":"prj-BYpph2TYRdFuifvr","type":"project"}},"vars":{"data":[{"type":"vars","attributes":{"key":"module_name","value":"'"${NAME}"'","category":"terraform"}},{"type":"vars","attributes":{"key":"module_provider","value":"'"${PROVIDER}"'","category":"terraform"}}]}}}}'
           json_payload=$(echo "${json_string}" | jq)
           echo "$json_payload"
-          curl --request POST --url "${tfc_api_url}/no-code-modules/nocode-C8CZ8RCAFuvAWtMu/workspaces" \
-          --header "${auth_header}" --header "${content_header}" --data "${json_payload}"
+          # curl --request POST --url "${tfc_api_url}/no-code-modules/nocode-C8CZ8RCAFuvAWtMu/workspaces" \
+          # --header "${auth_header}" --header "${content_header}" --data "${json_payload}"
