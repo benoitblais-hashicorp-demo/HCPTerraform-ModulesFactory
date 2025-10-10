@@ -166,7 +166,7 @@ module "modules_factory_repository" {
 
 resource "github_actions_secret" "tfe_token" {
   count           = length(module.modules_factory_team_git) > 0 ? 1 : 0
-  repository      =  module.modules_factory_repository[0].repository.name
+  repository      = module.modules_factory_repository[0].repository.name
   secret_name     = "TFE_TOKEN"
   plaintext_value = module.modules_factory_team_git[0].token
 }
