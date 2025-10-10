@@ -49,8 +49,8 @@ jobs:
           tfc_api_url="https://app.terraform.io/api/v2"
           auth_header="Authorization: Bearer ${TFC_API_TOKEN}"
           content_header="Content-Type: application/vnd.api+json"
-          workspace_name="terraform-${github.event.inputs.provider}-${github.event.inputs.name}"
-          json_string='{"data": {"type": "workspaces","attributes": {"name":  "'"${workspace_name}"'",},"relationships": {"project": {"data": {"id": "prj-BYpph2TYRdFuifvr","type": "project"}},"vars": {"data": [{"type": "vars","attributes": {"key": "module_name","value": "'"${github.event.inputs.name}"'","category": "terraform",}},{"type": "vars","attributes": {"key": "module_provider","value": "'"${github.event.inputs.provider}"'","category": "terraform",}}]}}}}'
+          workspace_name="terraform-${{github.event.inputs.provider}}-${{github.event.inputs.name}}"
+          json_string='{"data": {"type": "workspaces","attributes": {"name":  "'"${workspace_name}"'",},"relationships": {"project": {"data": {"id": "prj-BYpph2TYRdFuifvr","type": "project"}},"vars": {"data": [{"type": "vars","attributes": {"key": "module_name","value": "'"${{github.event.inputs.name}}"'","category": "terraform",}},{"type": "vars","attributes": {"key": "module_provider","value": "'"${{github.event.inputs.provider}}"'","category": "terraform",}}]}}}}'
           json_payload=$(echo "${json_string}" | jq)
 
           run=$(curl -sS --request POST --url "${tfc_api_url}/no-code-modules/nocode-C8CZ8RCAFuvAWtMu/workspaces" \
