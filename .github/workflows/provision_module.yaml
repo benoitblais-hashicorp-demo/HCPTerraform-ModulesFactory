@@ -136,5 +136,4 @@ jobs:
             exit 1
           else
             echo "INFO     | Workspace created successfully."
-            echo "${run}"
           fi
