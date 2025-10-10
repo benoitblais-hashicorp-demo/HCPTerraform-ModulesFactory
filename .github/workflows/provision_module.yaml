@@ -39,6 +39,7 @@ jobs:
     name: Provision Module
     runs-on: ubuntu-latest
     env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       TFC_API_TOKEN: ${{ secrets.TFE_TOKEN }}
       TFC_ORGANIZATION: "benoitblais-hashicorp"
       TFC_PROJECT: "Terraform Modules Factory"
@@ -118,8 +119,6 @@ jobs:
           tfc_api_url="https://app.terraform.io/api/v2"
           auth_header="Authorization: Bearer ${TFC_API_TOKEN}"
           content_header="Content-Type: application/vnd.api+json"
-          project_id=${{ steps.get_project_id.outputs.project_id }}
-          echo ${project_id}
           workspace_name="terraform-${PROVIDER}-${NAME}"
           echo "INFO     | Creating workspace ${workspace_name} in project ${TFC_PROJECT}."
           if [ "${NO_CODE}" = true ] ; then
