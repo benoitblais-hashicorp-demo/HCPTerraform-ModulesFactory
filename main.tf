@@ -16,7 +16,6 @@ resource "tfe_variable_set" "this" {
   count             = length(tfe_project.this) > 0 ? 1 : 0
   name              = lower(replace("${tfe_project.this[0].name}-hcp", "/\\W|_|\\s/", "-"))
   description       = "Variable set for project \"${tfe_project.this[0].name}\"."
-  global            = true
   organization      = var.organization
   parent_project_id = tfe_project.this[0].id
 }
