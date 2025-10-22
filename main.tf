@@ -3,7 +3,7 @@
 resource "tfe_project" "this" {
   count        = var.project_name != null ? 1 : 0
   name         = var.project_name
-  organization = var.organization
+  organization = var.organization_name
   description  = var.project_description
   tags = merge(var.project_tags, {
     managed_by_terraform = "true"
@@ -18,7 +18,7 @@ resource "tfe_variable_set" "this" {
   count             = length(tfe_project.this) > 0 ? 1 : 0
   name              = lower(replace("${tfe_project.this[0].name}-hcp", "/\\W|_|\\s/", "-"))
   description       = "Variable set for project \"${tfe_project.this[0].name}\"."
-  organization      = var.organization
+  organization      = var.organization_name
   parent_project_id = tfe_project.this[0].id
 }
 
@@ -28,7 +28,7 @@ module "modules_factory_team_hcp" {
   source       = "./modules/tfe_team"
   count        = length(tfe_project.this) > 0 ? 1 : 0
   name         = lower(replace("${tfe_project.this[0].name}-hcp", "/\\W|_|\\s/", "-"))
-  organization = var.organization
+  organization = var.organization_name
   organization_access = {
     manage_modules = true
   }
@@ -39,7 +39,7 @@ module "modules_factory_team_git" {
   source       = "./modules/tfe_team"
   count        = length(tfe_project.this) > 0 ? 1 : 0
   name         = lower(replace("${tfe_project.this[0].name}-git", "/\\W|_|\\s/", "-"))
-  organization = var.organization
+  organization = var.organization_name
   organization_access = {
     manage_modules = true
   }
@@ -105,7 +105,7 @@ resource "tfe_variable" "oauth_client_name" {
 resource "tfe_variable" "organization" {
   count           = length(tfe_variable_set.this) > 0 ? 1 : 0
   key             = "organization"
-  value           = var.organization
+  value           = var.organization_name
   category        = "terraform"
   description     = "(Optional) A description for the project."
   variable_set_id = tfe_variable_set.this[0].id
@@ -147,7 +147,7 @@ resource "tfe_variable" "template" {
 resource "tfe_variable" "git_tfe_token" {
   count           = length(tfe_variable_set.this) > 0 ? 1 : 0
   key             = "tfe_token"
-  value           = var.organization
+  value           = var.organization_name
   category        = "terraform"
   description     = "(Optional) The TFE_TOKEN secret value to be created in the GitHub repository to allow the module to publish itself into the private registry."
   variable_set_id = tfe_variable_set.this[0].id
@@ -187,7 +187,7 @@ module "policies_factory_git_teams" {
 
 data "tfe_oauth_client" "client" {
   count        = var.oauth_client_name != null ? 1 : 0
-  organization = var.organization
+  organization = var.organization_name
   name         = var.oauth_client_name
 }
 
@@ -195,7 +195,7 @@ data "tfe_oauth_client" "client" {
 
 resource "tfe_registry_module" "this" {
   count           = length(module.modules_factory_repository) > 0 && length(data.tfe_oauth_client.client) > 0 ? 1 : 0
-  organization    = var.organization
+  organization    = var.organization_name
   initial_version = "0.0.0"
   test_config {
     tests_enabled = true
@@ -210,7 +210,7 @@ resource "tfe_registry_module" "this" {
 
 resource "tfe_no_code_module" "this" {
   count           = length(tfe_registry_module.this) > 0 ? 1 : 0
-  organization    = var.organization
+  organization    = var.organization_name
   registry_module = tfe_registry_module.this[0].id
 }
 
@@ -221,7 +221,7 @@ resource "tfe_test_variable" "github_app_id" {
   category        = "env"
   module_name     = tfe_registry_module.this[0].name
   module_provider = tfe_registry_module.this[0].module_provider
-  organization    = var.organization
+  organization    = var.organization_name
   sensitive       = true
 }
 
@@ -232,7 +232,7 @@ resource "tfe_test_variable" "github_app_installation_id" {
   category        = "env"
   module_name     = tfe_registry_module.this[0].name
   module_provider = tfe_registry_module.this[0].module_provider
-  organization    = var.organization
+  organization    = var.organization_name
   sensitive       = true
 }
 
@@ -243,7 +243,7 @@ resource "tfe_test_variable" "github_app_pem_file" {
   category        = "env"
   module_name     = tfe_registry_module.this[0].name
   module_provider = tfe_registry_module.this[0].module_provider
-  organization    = var.organization
+  organization    = var.organization_name
   sensitive       = true
 }
 
@@ -254,7 +254,7 @@ resource "tfe_test_variable" "github_owner" {
   category        = "env"
   module_name     = tfe_registry_module.this[0].name
   module_provider = tfe_registry_module.this[0].module_provider
-  organization    = var.organization
+  organization    = var.organization_name
   sensitive       = true
 }
 
@@ -265,7 +265,7 @@ resource "tfe_test_variable" "tfe_token" {
   category        = "env"
   module_name     = tfe_registry_module.this[0].name
   module_provider = tfe_registry_module.this[0].module_provider
-  organization    = var.organization
+  organization    = var.organization_name
   sensitive       = true
 }
 
@@ -275,14 +275,14 @@ resource "tfe_test_variable" "oauth_client_name" {
   category        = "env"
   module_name     = tfe_registry_module.this[0].name
   module_provider = tfe_registry_module.this[0].module_provider
-  organization    = var.organization
+  organization    = var.organization_name
 }
 
 resource "tfe_test_variable" "organization" {
   key             = "TF_VAR_organization"
-  value           = var.organization
+  value           = var.organization_name
   category        = "env"
   module_name     = tfe_registry_module.this[0].name
   module_provider = tfe_registry_module.this[0].module_provider
-  organization    = var.organization
+  organization    = var.organization_name
 }

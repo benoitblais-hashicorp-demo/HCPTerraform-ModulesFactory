@@ -1,51 +1,3 @@
-variable "organization" {
-  description = "(Optional) A description for the project."
-  type        = string
-  nullable    = false
-  default     = "benoitblais-hashicorp"
-}
-
-variable "project_description" {
-  description = "(Optional) A description for the project."
-  type        = string
-  nullable    = true
-  default     = null
-}
-
-variable "project_name" {
-  description = "(Optional) Name of the project."
-  type        = string
-  nullable    = true
-  default     = "Terraform Modules Factory"
-}
-
-variable "project_tags" {
-  description = "(Optional) A map of key-value tags to add to the project."
-  type        = map(string)
-  nullable    = true
-  default     = null
-}
-
-variable "module_name" {
-  description = "(Optional) Name of the terraform module used by the modules factory."
-  type        = string
-  default     = "terraform-tfe-modulesfactory"
-}
-
-variable "oauth_client_name" {
-  description = "(Optional) Name of the OAuth client."
-  type        = string
-  nullable    = false
-  default     = "GitHub"
-}
-
-variable "github_organization" {
-  description = "(Required) The target GitHub organization or individual user account to manage."
-  type        = string
-  nullable    = false
-  sensitive   = true
-}
-
 variable "app_id" {
   description = "(Required) ID of the GitHub App used to authenticate."
   type        = string
@@ -65,6 +17,20 @@ variable "app_pem_file" {
   type        = string
   nullable    = false
   sensitive   = true
+}
+
+variable "github_organization" {
+  description = "(Required) The target GitHub organization or individual user account to manage."
+  type        = string
+  nullable    = false
+  sensitive   = true
+}
+
+variable "organization_name" {
+  description = "(Required) Name of the organization."
+  type        = string
+  nullable    = false
+  default     = "benoitblais-hashicorp"
 }
 
 variable "github_teams" {
@@ -95,6 +61,40 @@ variable "github_teams" {
 variable "github_template" {
   description = "(Optional) The GitHub repository to use as a template when creating new repositories. The repository must be a template repository. If not provided, the default template provided by the module will be used."
   type        = string
+  nullable    = true
+  default     = null
+}
+
+variable "module_name" {
+  description = "(Optional) Name of the terraform module used by the modules factory."
+  type        = string
+  default     = "terraform-tfe-modulesfactory"
+}
+
+variable "oauth_client_name" {
+  description = "(Optional) Name of the OAuth client."
+  type        = string
+  nullable    = false
+  default     = "GitHub"
+}
+
+variable "project_description" {
+  description = "(Optional) A description for the project."
+  type        = string
+  nullable    = true
+  default     = null
+}
+
+variable "project_name" {
+  description = "(Optional) Name of the project."
+  type        = string
+  nullable    = true
+  default     = "Terraform Modules Factory"
+}
+
+variable "project_tags" {
+  description = "(Optional) A map of key-value tags to add to the project."
+  type        = map(string)
   nullable    = true
   default     = null
 }
