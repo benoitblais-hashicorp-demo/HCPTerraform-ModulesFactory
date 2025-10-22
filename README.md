@@ -131,9 +131,9 @@ Type: `string`
 
 Default: `"GitHub"`
 
-### <a name="input_organization"></a> [organization](#input\_organization)
+### <a name="input_organization_name"></a> [organization\_name](#input\_organization\_name)
 
-Description: (Optional) A description for the project.
+Description: (Required) Name of the organization.
 
 Type: `string`
 
