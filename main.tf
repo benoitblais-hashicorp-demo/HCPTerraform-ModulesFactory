@@ -107,7 +107,7 @@ resource "tfe_variable" "organization" {
   key             = "organization"
   value           = var.organization_name
   category        = "terraform"
-  description     = "(Optional) A description for the project."
+  description     = "(Optional) HCP Terraform organization name."
   variable_set_id = tfe_variable_set.this[0].id
 }
 
