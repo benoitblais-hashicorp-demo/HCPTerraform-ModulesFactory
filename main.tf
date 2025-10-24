@@ -147,9 +147,10 @@ resource "tfe_variable" "template" {
 resource "tfe_variable" "git_tfe_token" {
   count           = length(tfe_variable_set.this) > 0 ? 1 : 0
   key             = "tfe_token"
-  value           = var.organization_name
+  value           = module.modules_factory_team_git[0].token
   category        = "terraform"
   description     = "(Optional) The TFE_TOKEN secret value to be created in the GitHub repository to allow the module to publish itself into the private registry."
+  sensitive       = true
   variable_set_id = tfe_variable_set.this[0].id
 }
 
