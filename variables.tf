@@ -30,7 +30,6 @@ variable "organization_name" {
   description = "(Required) Name of the organization."
   type        = string
   nullable    = false
-  default     = "benoitblais-hashicorp"
 }
 
 variable "github_teams" {
