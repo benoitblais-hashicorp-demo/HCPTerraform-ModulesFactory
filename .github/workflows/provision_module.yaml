@@ -122,7 +122,7 @@ jobs:
           content_header="Content-Type: application/vnd.api+json"
           workspace_name="terraform-${PROVIDER}-${NAME}-no-code"
           echo "INFO     | Create workspace ${workspace_name} in project ${TFC_PROJECT}."
-          if [ "${NO_CODE}" = true ] ; then
+          if [[ "${NO_CODE}" == true ]]; then
             no_code='{"type":"vars","attributes":{"key":"no_code_module","value":"true","category":"terraform"}}'
           else
             no_code='{"type":"vars","attributes":{"key":"no_code_module","value":"false","category":"terraform"}}'
@@ -155,7 +155,7 @@ jobs:
           echo "INFO     | Build required variables."
           tfc_api_url="https://app.terraform.io/api/v2"
           auth_header="Authorization: Bearer ${TFC_API_TOKEN}"
-          content_header="Content-Type: application/vnd.api+json" 
+          content_header="Content-Type: application/vnd.api+json"
           json_string='{"data":{"id":"'"WORKSPACE_ID"'","type":"workspaces","attributes":{"structured-run-output-enabled":false,"terraform-version": "latest"}}}'
           json_payload=$(echo "${json_string}" | jq)
           run=$(curl -sS --request PATCH --url "${tfc_api_url}/organizations/${TFC_ORGANIZATION}/workspaces/${WORKSPACE_NAME}" \
