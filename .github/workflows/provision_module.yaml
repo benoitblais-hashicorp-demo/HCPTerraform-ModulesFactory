@@ -120,7 +120,7 @@ jobs:
           tfc_api_url="https://app.terraform.io/api/v2"
           auth_header="Authorization: Bearer ${TFC_API_TOKEN}"
           content_header="Content-Type: application/vnd.api+json"
-          workspace_name="terraform-${PROVIDER}-${NAME}"
+          workspace_name="terraform-${PROVIDER}-${NAME}-no-code"
           echo "INFO     | Create workspace ${workspace_name} in project ${TFC_PROJECT}."
           if [ "${NO_CODE}" = true ] ; then
             no_code='{"type":"vars","attributes":{"key":"no_code_module","value":"true","category":"terraform"}}'
