@@ -5,18 +5,16 @@ private registry factory. It is designed to be used from a dedicated
 API-Driven HCP Terraform workspace that would provision and manage the
 configuration using Terraform code (IaC).
 
-> Module publication to the private registry is facilitated through a no-code 
-> module workflow that creates and configures the required GitHub repository 
-> and publishes the initial module version to the private registry. Each no-code 
-> module must be provisioned within the dedicated project to ensure proper 
-> variable input configuration and management.
+> Module publication to the private registry is facilitated through a no-code
+> module. Each no-code module must be provisioned within the dedicated project
+> to ensure proper variable input configuration and management.
 
 ## Permissions
 
 ### HCP Terraform Permissions
 
-To manage the agent pool resources, provide a user token from an account with
-appropriate permissions. This user should have the `Manage Modules`, `Manage Projects`, 
+To manage the resources, provide a user token from an account with
+appropriate permissions. This user should have the `Manage Modules`, `Manage Projects`,
 `Manage Workspaces`, `Manage Teams`, `Manage Membership`, and `Manage Organization Access`
 permission. Alternatively, you can use a token from a team instead of a user token.
 
