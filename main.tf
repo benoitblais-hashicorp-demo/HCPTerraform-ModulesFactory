@@ -12,8 +12,6 @@ resource "tfe_project" "this" {
 
 # The following code block is used to create and manage the variable set at the project level that will own the variables required by the child workspaces.
 
-# NOTE: How can we configure the scope
-
 resource "tfe_variable_set" "this" {
   count             = length(tfe_project.this) > 0 ? 1 : 0
   name              = lower(replace("${tfe_project.this[0].name}-hcp", "/\\W|_|\\s/", "-"))
@@ -22,72 +20,30 @@ resource "tfe_variable_set" "this" {
   parent_project_id = tfe_project.this[0].id
 }
 
-# The following module blocks are used to create and manage the HCP Terraform teams required by the `modules factory`.
-
-module "modules_factory_team_hcp" {
-  source       = "./modules/tfe_team"
-  count        = length(tfe_project.this) > 0 ? 1 : 0
-  name         = lower(replace("${tfe_project.this[0].name}-hcp", "/\\W|_|\\s/", "-"))
-  organization = var.organization_name
-  organization_access = {
-    manage_modules = true
-  }
-  token = true
-}
-
-module "modules_factory_team_git" {
-  source       = "./modules/tfe_team"
-  count        = length(tfe_project.this) > 0 ? 1 : 0
-  name         = lower(replace("${tfe_project.this[0].name}-git", "/\\W|_|\\s/", "-"))
-  organization = var.organization_name
-  organization_access = {
-    manage_modules = true
-  }
-  token = true
-}
-
 # The following resource blocks are used to create variables that will be stored into the variable set previously created.
 
 resource "tfe_variable" "tfe_token" {
-  count           = length(module.modules_factory_team_hcp) > 0 ? 1 : 0
+  count           = length(tfe_variable_set.this) > 0 ? 1 : 0
   key             = "TFE_TOKEN"
-  value           = module.modules_factory_team_hcp[0].token
+  value           = var.tfe_token
   category        = "env"
   sensitive       = true
   variable_set_id = tfe_variable_set.this[0].id
 }
 
-resource "tfe_variable" "github_app_id" {
+resource "tfe_variable" "azdo_org_service_url" {
   count           = length(tfe_variable_set.this) > 0 ? 1 : 0
-  key             = "GITHUB_APP_ID"
-  value           = var.app_id
+  key             = "AZDO_ORG_SERVICE_URL"
+  value           = var.azdo_org_service_url
   category        = "env"
-  sensitive       = true
+  sensitive       = false
   variable_set_id = tfe_variable_set.this[0].id
 }
 
-resource "tfe_variable" "github_app_installation_id" {
+resource "tfe_variable" "azdo_personal_access_token" {
   count           = length(tfe_variable_set.this) > 0 ? 1 : 0
-  key             = "GITHUB_APP_INSTALLATION_ID"
-  value           = var.app_installation_id
-  category        = "env"
-  sensitive       = true
-  variable_set_id = tfe_variable_set.this[0].id
-}
-
-resource "tfe_variable" "github_app_pem_file" {
-  count           = length(tfe_variable_set.this) > 0 ? 1 : 0
-  key             = "GITHUB_APP_PEM_FILE"
-  value           = var.app_pem_file
-  category        = "env"
-  sensitive       = true
-  variable_set_id = tfe_variable_set.this[0].id
-}
-
-resource "tfe_variable" "github_owner" {
-  count           = length(tfe_variable_set.this) > 0 ? 1 : 0
-  key             = "GITHUB_OWNER"
-  value           = var.github_organization
+  key             = "AZDO_PERSONAL_ACCESS_TOKEN"
+  value           = var.azdo_personal_access_token
   category        = "env"
   sensitive       = true
   variable_set_id = tfe_variable_set.this[0].id
@@ -111,81 +67,28 @@ resource "tfe_variable" "organization" {
   variable_set_id = tfe_variable_set.this[0].id
 }
 
-locals {
-  github_teams = [for team in var.github_teams :
-    {
-      name       = team.name
-      permission = team.permission
-    }
-  ]
-  github_teams_formated = [for team in local.github_teams :
-    "  {\n    name = \"${team.name}\",\n    permission = \"${team.permission}\"\n  }"
-  ]
-  github_teams_string = "[\n${join(",\n", local.github_teams_formated)}\n]"
-}
-
-resource "tfe_variable" "github_teams" {
+resource "tfe_variable" "azdo_project_name" {
   count           = length(tfe_variable_set.this) > 0 ? 1 : 0
-  key             = "github_teams"
-  value           = local.github_teams_string
+  key             = "azdo_project_name"
+  value           = var.azdo_project_name
   category        = "terraform"
-  description     = "(Optional) The github_teams block supports the following:\nname: (Required) The name of the team.\npermission: (Optional) The permissions of team members regarding the repository. Must be one of `pull`, `triage`, `push`, `maintain`, `admin` or the name of an existing custom repository role within the organisation."
-  hcl             = true
+  description     = "(Required) Name of the Azure DevOps project where repositories will be created."
   variable_set_id = tfe_variable_set.this[0].id
 }
 
-resource "tfe_variable" "template" {
-  count           = length(tfe_variable_set.this) > 0 && var.github_template != null ? 1 : 0
-  key             = "template"
-  value           = "{\n  owner = \"${var.github_organization}\",\n  repository = \"${var.github_template}\"\n}"
-  category        = "terraform"
-  description     = "(Optional) The template block supports the following:\nowner: (Required) The GitHub organization or user the template repository is owned by.\nrepository: (Required) The name of the template repository."
-  hcl             = true
-  variable_set_id = tfe_variable_set.this[0].id
-}
-
-resource "tfe_variable" "git_tfe_token" {
-  count           = length(tfe_variable_set.this) > 0 ? 1 : 0
-  key             = "tfe_token"
-  value           = module.modules_factory_team_git[0].token
-  category        = "terraform"
-  description     = "(Optional) The TFE_TOKEN secret value to be created in the GitHub repository to allow the module to publish itself into the private registry."
-  sensitive       = true
-  variable_set_id = tfe_variable_set.this[0].id
-}
-
-# The following module block is used to create and manage the GitHub repository that will contain the Terraform module used by the facotry.
+# The following module block is used to create and manage the Azure DevOps repository that will contain the Terraform module used by the factory.
 
 module "modules_factory_repository" {
-  source      = "./modules/git_repository"
-  count       = length(tfe_project.this) > 0 && var.module_name != null ? 1 : 0
-  name        = var.module_name
-  description = "Terraform module to manage ${element(split("-", var.module_name), 1)} resources."
-  topics      = ["factory", "terraform-module", "terraform", "terraform-managed"]
+  source       = "./modules/azuredevops_repository"
+  count        = length(tfe_project.this) > 0 && var.module_name != null ? 1 : 0
+  name         = var.module_name
+  description  = "Terraform module to manage ${element(split("-", var.module_name), 1)} resources."
+  project_id   = var.azdo_project_id
+  project_name = var.azdo_project_name
+  ado_org_name = var.azdo_org_name
 }
 
-# The following resource block is used to create and manage an action secret at the repository level.
-
-resource "github_actions_secret" "tfe_token" {
-  count            = length(module.modules_factory_team_git) > 0 ? 1 : 0
-  repository       = module.modules_factory_repository[0].repository.name
-  secret_name      = "TFE_TOKEN"
-  destroy_on_drift = false
-  plaintext_value  = module.modules_factory_team_git[0].token
-}
-
-# The following module block is used to create and manage a GitHub team for the `modules factory`.
-
-module "policies_factory_git_teams" {
-  for_each    = { for team in var.github_teams : team.name => team }
-  source      = "./modules/git_team"
-  name        = each.value.name
-  description = try(each.value.description, null)
-  permission  = try(each.value.permission, null)
-  repository  = module.modules_factory_repository[0].repository.name
-}
-
-# The following block is use to get information about an OAuth client.
+# The following block is used to get information about an OAuth client.
 
 data "tfe_oauth_client" "client" {
   count        = var.oauth_client_name != null ? 1 : 0
@@ -216,43 +119,21 @@ resource "tfe_no_code_module" "this" {
   registry_module = tfe_registry_module.this[0].id
 }
 
-resource "tfe_test_variable" "github_app_id" {
+resource "tfe_test_variable" "azdo_org_service_url" {
   count           = length(tfe_registry_module.this) > 0 ? 1 : 0
-  key             = "GITHUB_APP_ID"
-  value           = var.app_id
+  key             = "AZDO_ORG_SERVICE_URL"
+  value           = var.azdo_org_service_url
   category        = "env"
   module_name     = tfe_registry_module.this[0].name
   module_provider = tfe_registry_module.this[0].module_provider
   organization    = var.organization_name
-  sensitive       = true
+  sensitive       = false
 }
 
-resource "tfe_test_variable" "github_app_installation_id" {
+resource "tfe_test_variable" "azdo_personal_access_token" {
   count           = length(tfe_registry_module.this) > 0 ? 1 : 0
-  key             = "GITHUB_APP_INSTALLATION_ID"
-  value           = var.app_installation_id
-  category        = "env"
-  module_name     = tfe_registry_module.this[0].name
-  module_provider = tfe_registry_module.this[0].module_provider
-  organization    = var.organization_name
-  sensitive       = true
-}
-
-resource "tfe_test_variable" "github_app_pem_file" {
-  count           = length(tfe_registry_module.this) > 0 ? 1 : 0
-  key             = "GITHUB_APP_PEM_FILE"
-  value           = var.app_pem_file
-  category        = "env"
-  module_name     = tfe_registry_module.this[0].name
-  module_provider = tfe_registry_module.this[0].module_provider
-  organization    = var.organization_name
-  sensitive       = true
-}
-
-resource "tfe_test_variable" "github_owner" {
-  count           = length(tfe_registry_module.this) > 0 ? 1 : 0
-  key             = "GITHUB_OWNER"
-  value           = var.github_organization
+  key             = "AZDO_PERSONAL_ACCESS_TOKEN"
+  value           = var.azdo_personal_access_token
   category        = "env"
   module_name     = tfe_registry_module.this[0].name
   module_provider = tfe_registry_module.this[0].module_provider
@@ -263,7 +144,7 @@ resource "tfe_test_variable" "github_owner" {
 resource "tfe_test_variable" "tfe_token" {
   count           = length(tfe_registry_module.this) > 0 ? 1 : 0
   key             = "TFE_TOKEN"
-  value           = module.modules_factory_team_hcp[0].token
+  value           = var.tfe_token
   category        = "env"
   module_name     = tfe_registry_module.this[0].name
   module_provider = tfe_registry_module.this[0].module_provider
@@ -283,6 +164,15 @@ resource "tfe_test_variable" "oauth_client_name" {
 resource "tfe_test_variable" "organization" {
   key             = "TF_VAR_organization"
   value           = var.organization_name
+  category        = "env"
+  module_name     = tfe_registry_module.this[0].name
+  module_provider = tfe_registry_module.this[0].module_provider
+  organization    = var.organization_name
+}
+
+resource "tfe_test_variable" "azdo_project_name" {
+  key             = "TF_VAR_azdo_project_name"
+  value           = var.azdo_project_name
   category        = "env"
   module_name     = tfe_registry_module.this[0].name
   module_provider = tfe_registry_module.this[0].module_provider

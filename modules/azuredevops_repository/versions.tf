@@ -1,10 +1,5 @@
 terraform {
-
   required_providers {
-    tfe = {
-      source  = "hashicorp/tfe"
-      version = "~> 0.71"
-    }
     azuredevops = {
       source  = "microsoft/azuredevops"
       version = "~> 1.16"
@@ -12,5 +7,4 @@ terraform {
   }
 
   required_version = ">= 1.13.0"
-
 }

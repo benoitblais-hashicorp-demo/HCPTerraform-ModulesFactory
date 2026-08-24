@@ -1,10 +1,6 @@
 provider "tfe" {}
 
-provider "github" {
-  owner = var.github_organization
-  app_auth {
-    id              = var.app_id              # or `GITHUB_APP_ID`
-    installation_id = var.app_installation_id # or `GITHUB_APP_INSTALLATION_ID`
-    pem_file        = var.app_pem_file        # or `GITHUB_APP_PEM_FILE`
-  }
+provider "azuredevops" {
+  org_service_url       = var.azdo_org_service_url
+  personal_access_token = var.azdo_personal_access_token
 }
