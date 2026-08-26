@@ -1,6 +1,6 @@
-provider "tfe" {}
-
 provider "azuredevops" {
-  org_service_url       = var.azdo_org_service_url
-  personal_access_token = var.azdo_personal_access_token
+  org_service_url       = "${var.azuredevops_service_url}/${var.azuredevops_organization}"
+  personal_access_token = var.azuredevops_personal_access_token
 }
+
+provider "tfe" {}

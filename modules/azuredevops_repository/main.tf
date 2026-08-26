@@ -1,107 +1,114 @@
 resource "azuredevops_git_repository" "this" {
   project_id     = var.project_id
   name           = var.name
-  default_branch = "refs/heads/main"
+  default_branch = "refs/heads/${var.default_branch}"
+  disabled       = var.disabled
 
   initialization {
-    init_type = "Clean"
+    init_type   = var.initialization.init_type
+    source_type = var.initialization.source_url != null ? "Git" : null
+    source_url  = var.initialization.source_url
   }
 
   lifecycle {
-    ignore_changes = [initialization]
+    ignore_changes = [
+      # Ignore changes to initialization to support importing existing repositories.
+      # Given that a repo now exists, either imported into Terraform state or created by Terraform,
+      # we don't care for the configuration of initialization against the existing resource.
+      initialization,
+    ]
   }
 }
 
-# Converts the user-facing branch_policies list into a map keyed by ref so each
-# policy resource can use for_each.  The ref is normalised to a full Git ref
-# (e.g. "main" → "refs/heads/main") so it can be passed directly to the ADO API.
-locals {
-  branch_policies = {
-    for bp in var.branch_policies :
-    bp.ref => bp
-  }
-
-  # Normalise a plain branch name into a full Git ref; leave it alone if it
-  # already starts with "refs/".
-  _normalised_refs = {
-    for k, bp in local.branch_policies :
-    k => startswith(bp.ref, "refs/") ? bp.ref : "refs/heads/${bp.ref}"
-  }
-}
-
-# ---------------------------------------------------------------------------
-# Minimum reviewers policy
-# Maps from: required_pull_request_reviews.required_approving_review_count
-#            required_pull_request_reviews.dismiss_stale_reviews   (→ on_push_reset_approved_votes)
-#            required_pull_request_reviews.require_last_push_approval (→ last_pusher_cannot_approve)
-# ---------------------------------------------------------------------------
 resource "azuredevops_branch_policy_min_reviewers" "this" {
-  for_each   = { for k, bp in local.branch_policies : k => bp if bp.required_pull_request_reviews != null }
-  project_id = var.project_id
+  for_each = {
+    for bp in var.branch_policies : bp.branch_ref => bp
+    if bp.min_reviewers != null
+  }
 
-  enabled  = each.value.enabled
-  blocking = each.value.blocking
+  project_id = var.project_id
+  enabled    = each.value.enabled
+  blocking   = each.value.blocking
 
   settings {
-    reviewer_count                         = each.value.required_pull_request_reviews.required_approving_review_count
-    submitter_can_vote                     = false
-    last_pusher_cannot_approve             = each.value.required_pull_request_reviews.require_last_push_approval
-    allow_completion_with_rejects_or_waits = false
-    on_push_reset_approved_votes           = each.value.required_pull_request_reviews.dismiss_stale_reviews
-    on_push_reset_all_votes                = false
+    reviewer_count                         = each.value.min_reviewers.reviewer_count
+    submitter_can_vote                     = each.value.min_reviewers.submitter_can_vote
+    last_pusher_cannot_approve             = each.value.min_reviewers.last_pusher_cannot_approve
+    allow_completion_with_rejects_or_waits = each.value.min_reviewers.allow_completion_with_rejects_or_waits
+    on_push_reset_approved_votes           = each.value.min_reviewers.on_push_reset_approved_votes
+    on_push_reset_all_votes                = each.value.min_reviewers.on_push_reset_all_votes
 
     scope {
       repository_id  = azuredevops_git_repository.this.id
-      repository_ref = local._normalised_refs[each.key]
-      match_type     = "Exact"
+      repository_ref = each.value.branch_ref
+      match_type     = each.value.match_type
     }
   }
 }
 
-# ---------------------------------------------------------------------------
-# Comment resolution policy
-# Maps from: require_conversation_resolution
-# ---------------------------------------------------------------------------
 resource "azuredevops_branch_policy_comment_resolution" "this" {
-  for_each   = { for k, bp in local.branch_policies : k => bp if bp.require_conversation_resolution }
-  project_id = var.project_id
+  for_each = {
+    for bp in var.branch_policies : bp.branch_ref => bp
+    if bp.require_comment_resolution
+  }
 
-  enabled  = each.value.enabled
-  blocking = each.value.blocking
+  project_id = var.project_id
+  enabled    = each.value.enabled
+  blocking   = each.value.blocking
 
   settings {
     scope {
       repository_id  = azuredevops_git_repository.this.id
-      repository_ref = local._normalised_refs[each.key]
-      match_type     = "Exact"
+      repository_ref = each.value.branch_ref
+      match_type     = each.value.match_type
     }
   }
 }
 
-# ---------------------------------------------------------------------------
-# Merge types policy
-# Maps from: allow_squash_merge, allow_rebase_merge, allow_merge_commit,
-#            required_linear_history (no fast-forward disabled when true)
-# ---------------------------------------------------------------------------
 resource "azuredevops_branch_policy_merge_types" "this" {
-  for_each   = { for k, bp in local.branch_policies : k => bp if bp.merge_types != null }
-  project_id = var.project_id
+  for_each = {
+    for bp in var.branch_policies : bp.branch_ref => bp
+    if bp.merge_types != null
+  }
 
-  enabled  = each.value.enabled
-  blocking = each.value.blocking
+  project_id = var.project_id
+  enabled    = each.value.enabled
+  blocking   = each.value.blocking
 
   settings {
     allow_squash                  = each.value.merge_types.allow_squash
     allow_rebase_and_fast_forward = each.value.merge_types.allow_rebase_and_fast_forward
-    # no-fast-forward (basic merge commit) is the only strategy allowed when
-    # required_linear_history is true; expose it directly as well.
-    allow_basic_no_fast_forward = each.value.merge_types.allow_basic_no_fast_forward
-    allow_rebase_with_merge     = each.value.merge_types.allow_rebase_with_merge
+    allow_basic_no_fast_forward   = each.value.merge_types.allow_basic_no_fast_forward
+    allow_rebase_with_merge       = each.value.merge_types.allow_rebase_with_merge
 
     scope {
       repository_id  = azuredevops_git_repository.this.id
-      repository_ref = local._normalised_refs[each.key]
-      match_type     = "Exact"
+      repository_ref = each.value.branch_ref
+      match_type     = each.value.match_type
+    }
+  }
+}
+
+resource "azuredevops_branch_policy_auto_reviewers" "this" {
+  for_each = {
+    for bp in var.branch_policies : bp.branch_ref => bp
+    if bp.auto_reviewers != null
+  }
+
+  project_id = var.project_id
+  enabled    = each.value.enabled
+  blocking   = each.value.blocking
+
+  settings {
+    auto_reviewer_ids  = each.value.auto_reviewers.reviewer_ids
+    submitter_can_vote = each.value.auto_reviewers.submitter_can_vote
+    message            = each.value.auto_reviewers.message
+    path_filters       = each.value.auto_reviewers.path_filters
+
+    scope {
+      repository_id  = azuredevops_git_repository.this.id
+      repository_ref = each.value.branch_ref
+      match_type     = each.value.match_type
     }
   }
 }
