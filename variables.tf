@@ -48,11 +48,25 @@ variable "azuredevops_service_url" {
   default     = "https://dev.azure.com"
 }
 
+variable "oauth_client_name" {
+  description = "(Optional) Display name of the HCP Terraform VCS OAuth client (Azure DevOps VCS provider connection). Defaults to `Azure DevOps Services`, which is the name assigned by HCP Terraform when the connection is created through the UI."
+  type        = string
+  nullable    = false
+  default     = "Azure DevOps Services"
+}
+
 variable "module_name" {
-  description = "(Optional) Name of the terraform module used by the modules factory."
+  description = "(Optional) Name of the Terraform module used by the modules factory. Must follow the convention `terraform-<provider>-<name>`."
   type        = string
   nullable    = false
   default     = "terraform-tfe-modulesfactory"
+}
+
+variable "module_provider" {
+  description = "(Optional) The main provider the module uses (e.g., `tfe`, `azurerm`, `aws`). Derived automatically from `module_name` by extracting the middle segment of the `terraform-<provider>-<name>` convention."
+  type        = string
+  nullable    = false
+  default     = "tfe"
 }
 
 variable "project_description" {

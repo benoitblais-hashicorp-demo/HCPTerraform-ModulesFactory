@@ -1,10 +1,15 @@
 # The following locals block constructs derived values used throughout this configuration.
 
 locals {
-  # Azure DevOps VCS identifier format: <ado org>/<ado project>/_git/<ado repository>
-  # Project name must be URL-encoded (spaces → %20) as required by the HCP Terraform provider.
   azdo_org_service_url = "${var.azuredevops_service_url}/${var.azuredevops_organization}"
-  vcs_identifier       = length(module.modules_factory_repository) > 0 ? "${var.azuredevops_organization}/${replace(var.azuredevops_project_name, " ", "%20")}/_git/${module.modules_factory_repository[0].repository.name}" : null
+
+  # identifier — machine-readable URL used by the HCP Terraform provider to locate the repo.
+  # Format: <org>/<project%20encoded>/_git/<repo>
+  vcs_identifier = length(module.modules_factory_repository) > 0 ? "${var.azuredevops_organization}/${replace(var.azuredevops_project_name, " ", "%20")}/_git/${module.modules_factory_repository[0].repository.name}" : null
+
+  # display_identifier — human-readable label shown in the HCP Terraform UI.
+  # Format: <org>/<project with spaces>/<repo>  (no /_git/ segment, no URL-encoding)
+  vcs_display_identifier = length(module.modules_factory_repository) > 0 ? "${var.azuredevops_organization}/${var.azuredevops_project_name}/${module.modules_factory_repository[0].repository.name}" : null
 }
 
 # The following data source looks up the Azure DevOps project by name to obtain its UUID,
@@ -69,7 +74,7 @@ resource "tfe_variable" "azdo_project_name" {
 resource "tfe_variable" "oauth_client_name" {
   count           = length(tfe_variable_set.this) > 0 ? 1 : 0
   key             = "oauth_client_name"
-  value           = "AzureDevOps"
+  value           = var.oauth_client_name
   category        = "terraform"
   description     = "(Optional) Name of the OAuth client."
   sensitive       = false
@@ -82,6 +87,26 @@ resource "tfe_variable" "organization" {
   value           = var.organization_name
   category        = "terraform"
   description     = "(Optional) HCP Terraform organization name."
+  sensitive       = false
+  variable_set_id = tfe_variable_set.this[0].id
+}
+
+resource "tfe_variable" "module_name" {
+  count           = length(tfe_variable_set.this) > 0 ? 1 : 0
+  key             = "module_name"
+  value           = var.module_name
+  category        = "terraform"
+  description     = "(Required) The name of the Terraform module."
+  sensitive       = false
+  variable_set_id = tfe_variable_set.this[0].id
+}
+
+resource "tfe_variable" "module_provider" {
+  count           = length(tfe_variable_set.this) > 0 ? 1 : 0
+  key             = "module_provider"
+  value           = var.module_provider
+  category        = "terraform"
+  description     = "(Required) The main provider the module uses (e.g., `tfe`, `azurerm`, `aws`)."
   sensitive       = false
   variable_set_id = tfe_variable_set.this[0].id
 }
@@ -114,7 +139,7 @@ resource "tfe_registry_module" "this" {
     tests_enabled = true
   }
   vcs_repo {
-    display_identifier = local.vcs_identifier
+    display_identifier = local.vcs_display_identifier
     identifier         = local.vcs_identifier
     oauth_token_id     = var.vcs_oauth_token_id
     branch             = "main"
@@ -149,6 +174,17 @@ resource "tfe_test_variable" "azdo_personal_access_token" {
   sensitive       = true
 }
 
+resource "tfe_test_variable" "azdo_organization" {
+  count           = length(tfe_registry_module.this) > 0 ? 1 : 0
+  key             = "TF_VAR_azuredevops_organization"
+  value           = var.azuredevops_organization
+  category        = "env"
+  module_name     = tfe_registry_module.this[0].name
+  module_provider = tfe_registry_module.this[0].module_provider
+  organization    = var.organization_name
+  sensitive       = false
+}
+
 resource "tfe_test_variable" "azdo_project_name" {
   count           = length(tfe_registry_module.this) > 0 ? 1 : 0
   key             = "TF_VAR_azdo_project_name"
@@ -160,10 +196,21 @@ resource "tfe_test_variable" "azdo_project_name" {
   sensitive       = false
 }
 
+resource "tfe_test_variable" "azdo_personal_access_token_var" {
+  count           = length(tfe_registry_module.this) > 0 ? 1 : 0
+  key             = "TF_VAR_azuredevops_personal_access_token"
+  value           = var.azuredevops_personal_access_token
+  category        = "env"
+  module_name     = tfe_registry_module.this[0].name
+  module_provider = tfe_registry_module.this[0].module_provider
+  organization    = var.organization_name
+  sensitive       = true
+}
+
 resource "tfe_test_variable" "oauth_client_name" {
   count           = length(tfe_registry_module.this) > 0 ? 1 : 0
   key             = "TF_VAR_oauth_client_name"
-  value           = "AzureDevOps"
+  value           = var.oauth_client_name
   category        = "env"
   module_name     = tfe_registry_module.this[0].name
   module_provider = tfe_registry_module.this[0].module_provider
@@ -191,4 +238,26 @@ resource "tfe_test_variable" "tfe_token" {
   module_provider = tfe_registry_module.this[0].module_provider
   organization    = var.organization_name
   sensitive       = true
+}
+
+resource "tfe_test_variable" "module_name" {
+  count           = length(tfe_registry_module.this) > 0 ? 1 : 0
+  key             = "TF_VAR_module_name"
+  value           = var.module_name
+  category        = "env"
+  module_name     = tfe_registry_module.this[0].name
+  module_provider = tfe_registry_module.this[0].module_provider
+  organization    = var.organization_name
+  sensitive       = false
+}
+
+resource "tfe_test_variable" "module_provider" {
+  count           = length(tfe_registry_module.this) > 0 ? 1 : 0
+  key             = "TF_VAR_module_provider"
+  value           = var.module_provider
+  category        = "env"
+  module_name     = tfe_registry_module.this[0].name
+  module_provider = tfe_registry_module.this[0].module_provider
+  organization    = var.organization_name
+  sensitive       = false
 }
